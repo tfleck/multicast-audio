@@ -10,12 +10,12 @@ This is a guide for how to build a modular multiroom audio system that supports 
     ```
 2. Get latest version of [badaix’s Snapcast *server*](https://github.com/badaix/snapcast/releases/latest). You can use wget to download it from the command line like this (for v0.17.1 at the time of writing). Replace v0.17.1 with the latest version number in the URL below
     ```bash
-    wget https://github.com/badaix/snapcast/releases/download/v0.17.1/snapserver_0.17.1-1_armhf.deb
+    wget https://github.com/badaix/snapcast/releases/download/v0.19.0/snapserver_0.19.0-1_armhf.deb
     ```
 
 3. Unpack and install the Snapcast server
     ```bash
-    sudo dpkg -i snapserver_0.17.1-1_armhf.deb
+    sudo dpkg -i snapserver_0.19.0-1_armhf.deb
     ```
 
 4. Install any missing dependencies
@@ -63,16 +63,56 @@ This is a guide for how to build a modular multiroom audio system that supports 
     ```bash
     sudo systemctl restart snapserver
     ```
+    
+10. Download & install the latest version of [mikebrady's Shairport-Sync](https://github.com/mikebrady/shairport-sync) for AirPlay support (optional)
+    ```bash
+    git clone https://github.com/mikebrady/shairport-sync.git
+    cd shairport-sync
+    autoreconf -fi
+    ./configure --sysconfdir=/etc --with-alsa --with-soxr --with-avahi --with-ssl=openssl --with-systemd --with-pipe
+    make
+    sudo make install
+    ```
+    
+11. Edit default Shairport-Sync configuration
+    ```bash
+    sudo nano /etc/shairport-sync.conf
+    ```
+    Change the device name
+    ```
+    //    name =”%H”; -> name = “<your name here>”;
+    ```
+    Change the output backend to snapserver fifo pipe
+    ```
+    //     output_backend = "alsa"; -> output_backend = “pipe”;
+    ```
+    Change output pipe location
+    ```
+    //    name = "/path/to/pipe"; -> name = “/tmp/snapfifo”;
+    ```
+
+12. Start Shairport-Sync
+    ```bash
+    sudo systemctl start shairport-sync
+    ```
+    
+13. Enable services to start on boot
+    ```bash
+    sudo systemctl enable snapserver
+    sudo systemctl enable raspotify
+    sudo systemctl enable shairport-sync
+    ```    
 
 ### Client Pi(s)
 1. Get the latest version of [badaix's Snapcast *client*](https://github.com/badaix/snapcast/releases/latest). Same as with the server package, replace the version number in the URL below with the latest version number on GitHub.
     ```bash
-    wget https://github.com/badaix/snapcast/releases/download/v0.17.1/snapclient_0.17.1-1_armhf.deb
+    wget https://github.com/badaix/snapcast/releases/download/v0.19.0/snapclient_0.19.0-1_armhf.deb
     ```
 
 2. Unpack and Install Snapclient
     ```bash
-    sudo dpkg -i snapclient_0.17.1-1_armhf.deb
+    sudo dpkg -i snapclient_0.19.0-1_armhf.deb
+
     ```
 
 3. Install any missing dependencies
@@ -84,6 +124,12 @@ This is a guide for how to build a modular multiroom audio system that supports 
 - Connect your speakers to the 3.5mm jack on the Raspberry Pi.
 - Open the Spotify app, and go to the “Devices Available” menu. You should see a new device with the name you set earlier. If you select and start playing something, you should hear it come out of all the connected speakers!
 - Further configuration can be done with Raspotify and Snapcast to tailor the system to your exact needs. Check out their respective GitHub repositories for more information.
+- If you’re using a hifiberry dac/amp, follow this [guide to setup that as the default output instead](https://www.hifiberry.com/docs/software/configuring-linux-3-18-x/)
+
+## Troubleshooting
+- Make sure raspotify and shairport-sync have permissions to the /tmp/snapfifo directory
+- If the volume is too loud, try editing the raspotify config to remove the --linear-volume flag, and reduce the --initial-volume=100 to something lower
+- In the raspotify config, you can also remove the --enable-volume-normalisation flag if you want, that’s up to your personal preference
 
 ## Technical Information
 Raspotify is used to impersonate a Spotify Connect speaker, so that your Spotify app will detect it on your network and allow you to control it just like any other Spotify device.
