@@ -1,5 +1,5 @@
 # Multicast Audio
-Overview information will go here.
+This is a guide for how to build a modular multiroom audio system that supports Spotify & AirPlay using Raspberry Pis.
 
 ## Guide
 ---
