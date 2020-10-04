@@ -66,6 +66,8 @@ This is a guide for how to build a modular multiroom audio system that supports 
     
 10. Download & install the latest version of [mikebrady's Shairport-Sync](https://github.com/mikebrady/shairport-sync) for AirPlay support (optional)
     ```bash
+    sudo apt-get install build-essential git xmltoman autoconf automake libtool \
+    libpopt-dev libconfig-dev libasound2-dev avahi-daemon libavahi-client-dev libssl-dev libsoxr-dev
     git clone https://github.com/mikebrady/shairport-sync.git
     cd shairport-sync
     autoreconf -fi
